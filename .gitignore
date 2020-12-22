@@ -55,3 +55,4 @@ geckodriver.log
 # docs
 *.pdf
 *.docx
+*.png
