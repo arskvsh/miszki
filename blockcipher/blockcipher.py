@@ -1,5 +1,3 @@
-import binascii
-
 #Feistel cipher by Arseniy Koveshnikov from BIVT-18-3
 #ITKN APD, NUST MISIS
 
@@ -15,19 +13,13 @@ def stringXOR(a, b):
 
 #конвертация строки в бинарный код
 def convertToBin(inp):
-    output = ''.join(format(ord(i), 'b') for i in inp)
+    output = bin(int.from_bytes(inp.encode(), 'big'))[2:]
     return output
 
 #конвертация бинарного кода в читаемую строку
-"""def convertToReadable(inp):
-    output = ''.join([chr([int(x,2)]) for x in [inp[i:i+8] for i in range(0, len(inp), 8)]])
-    print(output)
-    return output"""
-
 def convertToReadable(inp):
-    chars = u''.join([chr(int(x,2)) for x in [inp[i:i+8] for i in range(0, len(inp), 8)]])
-    print(chars)
-    return chars
+    output = ''.join([chr(int(x,2)) for x in [inp[i:i+7] for i in range(0, len(inp), 8)]])
+    return output
 
 #генерация ключа
 def generateKey(roundnumber):
@@ -59,26 +51,23 @@ def splitIntoBlocks(inp):
 def decAndConnect(inp):
     output = ""
     for i in inp:
-        #output += convertToReadable(i)
-        print(convertToReadable(i))
+        output += convertToReadable(i)
     return output
 
 #msg = input("Введите шифруемое сообщение: ")
-msg = "V lesu rodilas yelochka, v lesu ona rosla!"
-print(msg)
+msg = "Privetiki"
+print("Исходное сообщение:", msg)
 
 #длина блока
 length = 128
 #кол-во раундов
-rounds = 16
+rounds = 8
 
 #преобразуем строку в последовательность битов, разделим на блоки и удлиним при необходимости
 msg_bin = convertToBin(str(msg))
 msg_blocks = splitIntoBlocks(msg_bin)
 for m in range(len(msg_blocks)):
     msg_blocks[m] = prolongue(msg_blocks[m], length)
-print(msg_blocks)
-
 
 #шифрование блоков по отдельности
 msg_encoded = []
@@ -97,7 +86,7 @@ for B in msg_blocks:
 
     msg_encoded.append(L+R)
 
-print(msg_encoded)
+print("Закодированное сообщение:", decAndConnect(msg_encoded))
 
 #расшифрование блоков по отдельности
 msg_decoded = []
@@ -116,34 +105,4 @@ for B in msg_encoded:
 
     msg_decoded.append(L+R)
 
-print(decAndConnect(msg_decoded))
-
-"""    
-#сохраняем необходимые переменные
-n = len(msg_bin)//2
-L = msg_bin[:n]
-R = msg_bin[n:]
-X = ""
-
-#шифруем сообщение
-for i in range(rounds):
-    Key = generateKey(i)
-    X = F(R, Key)
-    X = stringXOR(X, L)
-    L = R
-    R = X
-
-print(msg_bin)
-encrypted_msg = convertToReadable(L+R)
-print(encrypted_msg)
-
-#расшифровываем сообщение
-for i in reversed(range(rounds)):
-    Key = generateKey(i)
-    X = F(L, Key)
-    X = stringXOR(X, R)
-    R = L
-    L = X
-
-decrypted_msg = L+R
-print(decrypted_msg)"""
+print("Раскодированное сообщение:", decAndConnect(msg_decoded))
